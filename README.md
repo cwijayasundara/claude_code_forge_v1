@@ -69,7 +69,35 @@ claude install-plugin ./claude-code-forge
 claude --plugin-dir ./claude-code-forge
 ```
 
-After installation, all `/forge:*` commands become available in your Claude Code session.
+After installation, all forge commands become available in your Claude Code session.
+
+> **Note:** When using forge commands, you type them **without** the `forge:` prefix. For example, use `/init` instead of `/forge:init`. Here are all the available commands:
+>
+> | Command | Description |
+> |---------|-------------|
+> | `/build` | Full 11-phase SDLC pipeline |
+> | `/add-feature` | Feature SDLC pipeline for existing apps |
+> | `/resume` | Resume pipeline from last checkpoint |
+> | `/design` | Spec interview only (no implementation) |
+> | `/design-product` | Product spec design workflow |
+> | `/design-architecture` | Architecture design workflow |
+> | `/just-do-it` | Quick build without spec ceremony |
+> | `/build-unplanned` | Lightweight build with brief |
+> | `/work-on` | Work on a specific task/story (TDD) |
+> | `/work-on-next` | Pick next unblocked story |
+> | `/create-tasks` | Create tasks from stories |
+> | `/review` | 8-agent parallel gating review |
+> | `/validate` | Full verification suite |
+> | `/check` | 3-dimension alignment checks |
+> | `/source-architecture` | Architecture docs from code |
+> | `/source-specs` | Specs from existing code |
+> | `/spec-sync` | Bidirectional spec-code sync |
+> | `/init` | Scaffold project structure |
+> | `/debug` | 5-phase debugging workflow |
+> | `/refactor` | Targeted debt reduction |
+> | `/create-pr` | Structured PR with story commits |
+> | `/skills` | List all available skills |
+> | `/help` | Show all commands, skills, agents |
 
 ### Prerequisites
 
@@ -85,7 +113,7 @@ After installation, all `/forge:*` commands become available in your Claude Code
 ### Build a new app
 
 ```
-> /forge:build a task management API with user authentication and team workspaces
+> /build a task management API with user authentication and team workspaces
 ```
 
 Forge interviews you, produces a spec, waits for approval, then implements everything with TDD and full review.
@@ -93,7 +121,7 @@ Forge interviews you, produces a spec, waits for approval, then implements every
 ### Add a feature
 
 ```
-> /forge:add-feature add real-time notifications via WebSocket
+> /add-feature add real-time notifications via WebSocket
 ```
 
 Same pipeline, scoped to a single feature.
@@ -101,7 +129,7 @@ Same pipeline, scoped to a single feature.
 ### Quick change (skip the spec)
 
 ```
-> /forge:just-do-it add a health check endpoint at GET /health
+> /just-do-it add a health check endpoint at GET /health
 ```
 
 Builds with TDD but skips the full spec ceremony.
@@ -109,7 +137,7 @@ Builds with TDD but skips the full spec ceremony.
 ### Resume after interruption
 
 ```
-> /forge:resume
+> /resume
 ```
 
 Reads `specs/pipeline_status.md` and picks up where it left off.
@@ -198,7 +226,7 @@ Phase 11 │
 | **Checkpoint 2** | *you* | **Review results and approve for PR** | |
 | 11. PR | pr-writer | Structured pull request with story-based commits | GitHub PR |
 
-Each phase records its status in `specs/pipeline_status.md`. If a session is interrupted, `/forge:resume` reads this file and continues from the next incomplete phase.
+Each phase records its status in `specs/pipeline_status.md`. If a session is interrupted, `/resume` reads this file and continues from the next incomplete phase.
 
 #### Spec Artifacts
 
@@ -558,60 +586,60 @@ Hooks run automatically at specific lifecycle events. They enforce quality gates
 
 ## Commands Reference
 
-All commands use the `/forge:` prefix.
+Commands are invoked **without** the `forge:` prefix — just use `/build`, `/debug`, `/review`, etc.
 
 ### Pipeline & Build
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:build <description>` | Full 11-phase SDLC pipeline | Building a new app from scratch |
-| `/forge:add-feature <description>` | Feature pipeline for existing apps | Adding a significant feature |
-| `/forge:just-do-it <description>` | TDD implementation, no spec ceremony | Small, well-understood changes |
-| `/forge:build-unplanned <description>` | Lightweight build with feature brief | Medium changes that need some structure |
-| `/forge:resume` | Resume from last checkpoint | After session interruption |
+| `/build <description>` | Full 11-phase SDLC pipeline | Building a new app from scratch |
+| `/add-feature <description>` | Feature pipeline for existing apps | Adding a significant feature |
+| `/just-do-it <description>` | TDD implementation, no spec ceremony | Small, well-understood changes |
+| `/build-unplanned <description>` | Lightweight build with feature brief | Medium changes that need some structure |
+| `/resume` | Resume from last checkpoint | After session interruption |
 
 ### Design & Architecture
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:design <description>` | Spec interview only (no implementation) | When you want to plan without building |
-| `/forge:design-product <description>` | Product spec design workflow | Defining product requirements |
-| `/forge:design-architecture` | Architecture design workflow | Designing system architecture |
+| `/design <description>` | Spec interview only (no implementation) | When you want to plan without building |
+| `/design-product <description>` | Product spec design workflow | Defining product requirements |
+| `/design-architecture` | Architecture design workflow | Designing system architecture |
 
 ### Implementation
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:work-on <story-id>` | Work on a specific task/story with TDD | Implementing a particular story |
-| `/forge:work-on-next` | Pick next unblocked story, implement | Continuing implementation sequentially |
-| `/forge:create-tasks` | Create tasks from stories via TaskCreate | Setting up team task list |
+| `/work-on <story-id>` | Work on a specific task/story with TDD | Implementing a particular story |
+| `/work-on-next` | Pick next unblocked story, implement | Continuing implementation sequentially |
+| `/create-tasks` | Create tasks from stories via TaskCreate | Setting up team task list |
 
 ### Quality & Validation
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:review` | Run the 8-agent parallel review | Checking code quality before PR |
-| `/forge:validate` | Full verification suite (all 3 tiers) | Comprehensive quality check |
-| `/forge:check` | 3-dimension alignment checks | Quick alignment verification |
+| `/review` | Run the 8-agent parallel review | Checking code quality before PR |
+| `/validate` | Full verification suite (all 3 tiers) | Comprehensive quality check |
+| `/check` | 3-dimension alignment checks | Quick alignment verification |
 
 ### Reverse Engineering
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:source-architecture` | Generate architecture docs from code | Documenting an existing codebase |
-| `/forge:source-specs` | Generate specs from existing code | Creating specs for undocumented code |
-| `/forge:spec-sync` | Bidirectional spec-code sync | Keeping specs and code in sync |
+| `/source-architecture` | Generate architecture docs from code | Documenting an existing codebase |
+| `/source-specs` | Generate specs from existing code | Creating specs for undocumented code |
+| `/spec-sync` | Bidirectional spec-code sync | Keeping specs and code in sync |
 
 ### Utilities
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/forge:init <template>` | Scaffold project structure | Starting a new project |
-| `/forge:debug <description>` | Systematic 5-phase debugging | Investigating a bug |
-| `/forge:refactor <description>` | Targeted debt reduction | Improving code structure |
-| `/forge:create-pr` | Create structured PR with story commits | After all reviews pass |
-| `/forge:skills` | List all available skills | Discovering capabilities |
-| `/forge:help` | Show all commands, skills, agents | Getting oriented |
+| `/init <template>` | Scaffold project structure | Starting a new project |
+| `/debug <description>` | Systematic 5-phase debugging | Investigating a bug |
+| `/refactor <description>` | Targeted debt reduction | Improving code structure |
+| `/create-pr` | Create structured PR with story commits | After all reviews pass |
+| `/skills` | List all available skills | Discovering capabilities |
+| `/help` | Show all commands, skills, agents | Getting oriented |
 
 ---
 
@@ -620,7 +648,7 @@ All commands use the `/forge:` prefix.
 ### Build a New App from Scratch
 
 ```
-You:    /forge:build a recipe sharing platform with user profiles and social features
+You:    /build a recipe sharing platform with user profiles and social features
 
 Forge:  [Phase 1 — SPEC]
         Conducts a 3-round Socratic interview:
@@ -673,7 +701,7 @@ Forge:  [Phase 11 — PR]
 ### Add a Feature to an Existing App
 
 ```
-You:    /forge:add-feature add real-time notifications via WebSocket
+You:    /add-feature add real-time notifications via WebSocket
 
 Forge:  Same pipeline, but starts with a feature interview (not app spec).
         Reads existing specs/app_spec.md for context.
@@ -683,7 +711,7 @@ Forge:  Same pipeline, but starts with a feature interview (not app spec).
 ### Quick Build Without Spec Ceremony
 
 ```
-You:    /forge:just-do-it add a health check endpoint at GET /health
+You:    /just-do-it add a health check endpoint at GET /health
 
 Forge:  1. Parses your request into a structured brief
         2. Implements with TDD (RED-GREEN-REFACTOR)
@@ -695,7 +723,7 @@ Forge:  1. Parses your request into a structured brief
 ### Resume an Interrupted Pipeline
 
 ```
-You:    /forge:resume
+You:    /resume
 
 Forge:  Reads specs/pipeline_status.md:
         Phase 1-5: DONE
@@ -706,7 +734,7 @@ Forge:  Reads specs/pipeline_status.md:
 ### Debug a Problem
 
 ```
-You:    /forge:debug users are getting 500 errors on the login endpoint
+You:    /debug users are getting 500 errors on the login endpoint
 
 Forge:  5-phase debugging:
         1. Reproduce — find the failing request/test
@@ -719,7 +747,7 @@ Forge:  5-phase debugging:
 ### Review Code Quality
 
 ```
-You:    /forge:review
+You:    /review
 
 Forge:  Runs 8 reviewers in parallel:
         - 5 gating (spec, code, security, performance, architecture)
@@ -730,7 +758,7 @@ Forge:  Runs 8 reviewers in parallel:
 ### Reverse-Engineer Docs from Code
 
 ```
-You:    /forge:source-architecture
+You:    /source-architecture
 
 Forge:  Analyzes src/ directory structure, imports, and patterns.
         Generates architecture docs describing the current state of the code.
@@ -768,7 +796,7 @@ claude-code-forge/
 │   │   ├── research-agent.md
 │   │   ├── debug-agent.md
 │   │   └── pipeline-orchestrator.md
-│   ├── commands/                    # 23 slash commands (/forge:*)
+│   ├── commands/                    # 23 slash commands
 │   │   ├── build.md
 │   │   ├── add-feature.md
 │   │   ├── just-do-it.md
@@ -1034,10 +1062,10 @@ Available events: `PreToolUse`, `PostToolUse`, `Stop`, `TeammateIdle`, `TaskComp
 ### Pipeline is stuck / no progress
 
 ```
-/forge:resume
+/resume
 ```
 
-This reads `specs/pipeline_status.md` and continues from the last completed phase. If the file doesn't exist, start fresh with `/forge:build`.
+This reads `specs/pipeline_status.md` and continues from the last completed phase. If the file doesn't exist, start fresh with `/build`.
 
 ### Linter failures after implementation
 
@@ -1128,7 +1156,7 @@ Teammate permission requests bubble up to the lead. Pre-approve common operation
 After 3 retry cycles, forge escalates to you. Options:
 1. Fix the remaining issues manually
 2. Override by telling forge to proceed
-3. Run `/forge:review` again after making changes
+3. Run `/review` again after making changes
 
 ### Plugin validation fails
 
@@ -1153,8 +1181,8 @@ python3 .claude/scripts/validate_plugin.py
 
 ```bash
 claude --plugin-dir ./claude-code-forge
-/forge:init python-fastapi
-/forge:build a simple todo API
+/init python-fastapi
+/build a simple todo API
 ```
 
 ### Migration from Scaffold v2
