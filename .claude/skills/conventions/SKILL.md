@@ -1,5 +1,6 @@
 ---
 description: "Coding conventions: naming, logging, file size, type hints, import ordering, error handling, code style"
+disable-model-invocation: true
 ---
 
 # Coding Conventions

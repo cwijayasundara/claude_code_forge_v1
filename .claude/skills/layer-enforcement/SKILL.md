@@ -1,5 +1,6 @@
 ---
 description: "6-layer architecture rules and enforcement. Matches: code structure, imports, layers, architecture, dependency direction, module organization"
+disable-model-invocation: true
 ---
 
 # Layer Architecture Enforcement

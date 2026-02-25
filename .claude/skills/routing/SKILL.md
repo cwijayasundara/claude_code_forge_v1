@@ -1,5 +1,6 @@
 ---
 description: "Dual-mode request classifier and router. Matches: build, create, add feature, continue, resume, scaffold, new app, new feature, what's next, I want an app"
+disable-model-invocation: true
 ---
 
 # Request Router

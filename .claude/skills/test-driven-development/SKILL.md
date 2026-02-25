@@ -1,5 +1,6 @@
 ---
 description: "TDD enforcement: Iron Law cycle of failing test, minimum code, refactor for every acceptance criterion"
+disable-model-invocation: true
 ---
 
 # Test-Driven Development

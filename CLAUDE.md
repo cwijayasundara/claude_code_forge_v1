@@ -38,6 +38,8 @@ Key constraints:
 - **No raw primitives for domain concepts** — use refined Pydantic types (`UserId`, `Email`)
 - **No global mutable state** — config loaded once in Config, injected forward
 
+For full enforcement rules, load the `layer-enforcement` skill.
+
 ## SDLC Pipeline (11 Phases)
 
 ```
@@ -61,32 +63,8 @@ Never write production code without a failing test first. See `test-driven-devel
 
 ## Validation Loops
 
-### Full Validation (Phase 10 — 8 agents, parallel)
-
-5 gating reviewers (must all APPROVE unanimously) + 3 advisory reviewers:
-
-| # | Agent | Type |
-|---|-------|------|
-| 1 | spec-reviewer | Gating |
-| 2 | code-reviewer | Gating |
-| 3 | security-reviewer | Gating |
-| 4 | performance-reviewer | Gating |
-| 5 | architecture-alignment-checker | Gating |
-| 6 | design-consistency-checker | Advisory |
-| 7 | code-simplifier | Advisory |
-| 8 | prd-architecture-checker | Advisory |
-
-Max 3 retry cycles. See `validation-loop` skill.
-
-### Per-Task Validation (after each story — 3 checkers)
-
-| # | Agent |
-|---|-------|
-| 1 | architecture-alignment-checker |
-| 2 | design-consistency-checker |
-| 3 | prd-architecture-checker |
-
-See `task-validation-loop` skill.
+Full validation (Phase 10): 5 gating + 3 advisory reviewers, max 3 retries. See `validation-loop` skill.
+Per-task validation (after each story): 3 alignment checkers. See `task-validation-loop` skill.
 
 ## Quality Gates
 
@@ -104,64 +82,16 @@ See `task-validation-loop` skill.
 - **Imports**: stdlib → third-party → project (in layer order)
 - **Git**: feature branches `feature/<story-id>-<brief-name>`, one commit per story
 
-## Agents (20)
+For full conventions with code examples, load the `conventions` skill.
 
-| Agent | Role |
-|-------|------|
-| spec-writer | Socratic interviewer → specs, stories, design, test plan, exec plan |
-| implementer | Code + tests from spec, story-by-story, TDD enforced |
-| task-executor | TDD-enforced individual task execution with post-task validation |
-| test-writer | Coverage gap filler (target 80%+) |
-| e2e-writer | Playwright E2E + API contract tests |
-| devops | CI/CD pipelines, Dockerfiles, infrastructure (default: Azure) |
-| spec-reviewer | Validates implementation matches spec |
-| code-reviewer | Code quality, conventions, performance |
-| security-reviewer | OWASP Top 10, auth, secrets |
-| performance-reviewer | N+1 queries, unbounded loops, missing pagination, caching |
-| architecture-alignment-checker | Code-vs-architecture-docs alignment |
-| design-consistency-checker | UI/UX compliance against design system |
-| code-simplifier | Over-engineering detection (advisory) |
-| prd-architecture-checker | Architecture-vs-product-requirements alignment |
-| housekeeper | Dead code, unused imports, stale TODOs cleanup |
-| pr-writer | Structured PRs with story-based commits |
-| refactorer | Technical debt reduction, structure only |
-| research-agent | Read-only codebase analysis |
-| debug-agent | Systematic 5-phase debugging |
-| pipeline-orchestrator | SDLC phase transitions |
+## Agents
 
-## Team Orchestration (Claude Code Agent Teams)
+20 specialized agents in `.claude/agents/`. Key: spec-writer, implementer, task-executor, test-writer, code-reviewer, security-reviewer, performance-reviewer, devops, debug-agent.
 
-> Experimental. Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
+## Team Orchestration
 
-**MUST** use teams when: 4+ stories AND 2+ parallel groups. This is a mechanical check — do not override based on subjective judgment about story size or complexity.
-
-Each teammate is a **full, independent Claude Code session** with its own context window. Teammates coordinate through a shared task list and direct messaging.
-
-Team lifecycle (managed by `teams` skill):
-- **TeamCreate** — create team `feat-<feature-name>` (shared task list at `~/.claude/tasks/`)
-- **TaskCreate** — one task per story with dependency blocking and file ownership
-- **Task** — spawn teammates (one per parallel group), each a full Claude Code session
-- **SendMessage** — teammates report completion, message each other directly
-- **TaskList/TaskGet/TaskUpdate** — self-claim tasks, track progress, auto-unblock dependencies
-- **shutdown_request** — graceful teammate shutdown before cleanup
-- **TeamDelete** — cleanup (only the lead runs this)
-
-Quality gate hooks:
-- **TeammateIdle** — checks for incomplete tasks before allowing idle
-- **TaskCompleted** — runs linters and tests before allowing task completion
+Use teams when 4+ stories AND 2+ parallel groups. See `teams` skill.
 
 ## Project Structure
 
-```
-.claude/
-├── agents/           20 specialized agents
-├── commands/         23 slash commands (/forge:*)
-├── docs/             Architecture, conventions, pipeline, testing, git workflow
-├── evals/            Reviewer calibration samples
-├── hooks/            Pre/post tool-use hooks + 11 scripts (incl. TeammateIdle, TaskCompleted)
-├── linters/          layer_deps.py, file_size.py, lint_all.py
-├── scripts/          scaffold, validate, migrate utilities
-├── settings.json     Default permissions + agent teams enabled
-├── skills/           23 auto/manual skills
-└── templates/        Spec templates + project scaffolding (Jinja2)
-```
+Plugin root: `.claude/` with agents/, commands/, skills/, docs/, hooks/, linters/, scripts/, templates/.

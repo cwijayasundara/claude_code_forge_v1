@@ -1,5 +1,6 @@
 ---
 description: "Parse natural-language feature requests into structured feature briefs"
+disable-model-invocation: true
 ---
 
 # Understanding Feature Requests
