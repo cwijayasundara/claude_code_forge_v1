@@ -2,13 +2,17 @@
 disable-model-invocation: true
 ---
 
-# /init
+# /scaffold
 
-Scaffold a new project with the 6-layer architecture, specs directories, linters, and configuration files.
+Scaffold a new project with the full forge toolkit, 6-layer architecture, specs directories, linters, and configuration files.
+
+This command is named `/scaffold` (not `/init`) to avoid conflicting with Claude Code's built-in `/init` command.
 
 ## When to Use
 
-Use this command to initialize a new project from scratch. This sets up the full directory structure, configuration files, and quality gates so you can immediately begin building with `/build`.
+Use this command to initialize a new project from scratch. This copies the entire forge toolkit into your project's `.claude/` directory, sets up the project structure, and generates all config files so you can immediately begin building with `/build`.
+
+After running `/scaffold`, you no longer need `--plugin-dir` — everything is local.
 
 ## Arguments
 
@@ -17,7 +21,7 @@ Use this command to initialize a new project from scratch. This sets up the full
   - `python-django` — Python + Django backend
   - `node-express` — Node.js + Express backend
 
-Example: `/init python-fastapi`
+Example: `/scaffold python-fastapi`
 
 ## Process
 

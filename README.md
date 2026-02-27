@@ -70,10 +70,10 @@ When there are 4+ stories with 2+ parallel groups, forge automatically spins up 
 
 ### How it works
 
-You use `--plugin-dir` **once** to bootstrap a new project. The `/init` command copies the entire forge toolkit (agents, commands, skills, hooks, linters, scripts) into your project's `.claude/` directory. After that, you just run `claude` — no `--plugin-dir` needed.
+You use `--plugin-dir` **once** to bootstrap a new project. The `/scaffold` command copies the entire forge toolkit (agents, commands, skills, hooks, linters, scripts) into your project's `.claude/` directory. After that, you just run `claude` — no `--plugin-dir` needed.
 
 ```
-# Before /init:                    # After /init:
+# Before /scaffold:                 # After /scaffold:
 my-project/                        my-project/
 └── .git/                          ├── .claude/          ← full forge toolkit
                                    │   ├── agents/       (20 agents)
@@ -111,14 +111,14 @@ git init
 claude --plugin-dir ~/claude-code-forge/.claude
 ```
 
-This loads the forge as a temporary plugin. Commands appear with a namespace prefix (e.g., `/claude-code-forge:init`). You only need this once — to run `/init`.
+This loads the forge as a temporary plugin. Commands appear with a namespace prefix (e.g., `/claude-code-forge:scaffold`). You only need this once — to run `/scaffold`.
 
 > **Note:** The plugin directory is `.claude/` inside the forge repo — not the repo root. Always point `--plugin-dir` to `~/claude-code-forge/.claude`.
 
 **Step 4 — Inside the Claude session, scaffold everything:**
 
 ```
-> /claude-code-forge:init python-fastapi
+> /claude-code-forge:scaffold python-fastapi
 ```
 
 This copies the full forge toolkit into your project's `.claude/` directory, creates the 6-layer `src/` structure, `tests/`, `specs/`, `CLAUDE.md`, `README.md`, and all config files. Hook script paths are automatically rewritten from plugin paths to local relative paths.
@@ -142,7 +142,7 @@ Commands now appear without the namespace prefix: `/build` instead of `/claude-c
 
 **For team members** who clone your project later, they just run `claude` — the `.claude/` directory is already in the repo with everything they need.
 
-### What `/init` copies
+### What `/scaffold` copies
 
 | Destination | Contents |
 |-------------|----------|
@@ -170,7 +170,7 @@ claude plugin validate ~/claude-code-forge/.claude
 
 After installation, all forge commands become available in your Claude Code session.
 
-> **Note:** When using forge commands, you type them **without** the `forge:` prefix. For example, use `/init` instead of `/forge:init`. Here are all the available commands:
+> **Note:** When using forge commands, you type them **without** the `forge:` prefix. For example, use `/scaffold` instead of `/forge:scaffold`. Here are all the available commands:
 >
 > | Command | Description |
 > |---------|-------------|
@@ -191,7 +191,7 @@ After installation, all forge commands become available in your Claude Code sess
 > | `/source-architecture` | Architecture docs from code |
 > | `/source-specs` | Specs from existing code |
 > | `/spec-sync` | Bidirectional spec-code sync |
-> | `/init` | Scaffold project structure |
+> | `/scaffold` | Scaffold project structure (copies full forge toolkit) |
 > | `/debug` | 5-phase debugging workflow |
 > | `/refactor` | Targeted debt reduction |
 > | `/create-pr` | Structured PR with story commits |
@@ -726,7 +726,7 @@ Commands are invoked **without** the `forge:` prefix — just use `/build`, `/de
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/init <template>` | Scaffold project structure | Starting a new project |
+| `/scaffold <template>` | Scaffold project structure (copies full forge toolkit) | Starting a new project |
 | `/debug <description>` | Systematic 5-phase debugging | Investigating a bug |
 | `/refactor <description>` | Targeted debt reduction | Improving code structure |
 | `/create-pr` | Create structured PR with story commits | After all reviews pass |
@@ -1185,15 +1185,17 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 The `term-missing` report shows exactly which lines are uncovered. Add tests for those paths.
 
-### `/init` doesn't create any files in a new project
+### `/scaffold` doesn't create any files in a new project
 
-If `/init` fails silently, tell Claude the absolute path to your forge clone so it can find the scaffold script:
+If `/scaffold` fails silently, tell Claude the absolute path to your forge clone so it can find the scaffold script:
 
 ```
 Run: python3 ~/claude-code-forge/.claude/scripts/scaffold_project.py python-fastapi
 ```
 
 After scaffolding, the full `.claude/` directory is copied into your project. You can then restart Claude without `--plugin-dir`.
+
+> **Why `/scaffold` and not `/init`?** Claude Code has a built-in `/init` command that creates a basic `CLAUDE.md`. The forge uses `/scaffold` to avoid conflicting with it. When bootstrapping via `--plugin-dir`, use the namespaced version: `/claude-code-forge:scaffold`.
 
 ### Agent teams not activating
 
@@ -1282,9 +1284,12 @@ python3 .claude/scripts/validate_plugin.py
 ### Test with a Fresh Project
 
 ```bash
-claude --plugin-dir ./claude-code-forge
-/init python-fastapi
-/build a simple todo API
+mkdir test-project && cd test-project && git init
+claude --plugin-dir ~/claude-code-forge/.claude
+> /claude-code-forge:scaffold python-fastapi
+> /exit
+claude
+> /build a simple todo API
 ```
 
 ### Migration from Scaffold v2
