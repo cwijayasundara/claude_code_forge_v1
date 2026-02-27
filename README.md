@@ -68,76 +68,72 @@ When there are 4+ stories with 2+ parallel groups, forge automatically spins up 
 - Git (for branch management and PRs)
 - `pytest` (for test execution): `pip install pytest pytest-cov`
 
-### Understanding the plugin structure
+### How it works
 
-The forge plugin lives inside the `.claude/` directory of this repository. When you use `--plugin-dir`, you must point to that `.claude/` subdirectory — not the repo root.
+You use `--plugin-dir` **once** to bootstrap a new project. The `/init` command copies the entire forge toolkit (agents, commands, skills, hooks, linters, scripts) into your project's `.claude/` directory. After that, you just run `claude` — no `--plugin-dir` needed.
 
 ```
-claude-code-forge/           # ← repo root (NOT the plugin dir)
-└── .claude/                 # ← THIS is the plugin dir
-    ├── .claude-plugin/
-    │   └── plugin.json
-    ├── commands/
-    ├── agents/
-    ├── skills/
-    ├── hooks/
-    └── ...
+# Before /init:                    # After /init:
+my-project/                        my-project/
+└── .git/                          ├── .claude/          ← full forge toolkit
+                                   │   ├── agents/       (20 agents)
+                                   │   ├── commands/     (23 commands)
+                                   │   ├── skills/       (23 skills)
+                                   │   ├── hooks/        (11 hooks)
+                                   │   ├── linters/
+                                   │   ├── scripts/
+                                   │   └── ...
+                                   ├── src/              ← 6-layer architecture
+                                   ├── tests/
+                                   ├── specs/
+                                   ├── CLAUDE.md
+                                   └── README.md
 ```
 
-### Option 1: Session-only (recommended for trying it out)
-
-Load the plugin for a single Claude Code session using `--plugin-dir`:
+### Step-by-step setup for a new project
 
 ```bash
-# Clone the forge (one-time)
-git clone https://github.com/claude-code-forge/claude-code-forge ~/claude-code-forge
+# 1. Clone the forge (one-time setup)
+git clone https://github.com/cwijayasundara/claude_code_forge_v1 ~/claude-code-forge
 
-# Start Claude in any project with the plugin loaded
-claude --plugin-dir ~/claude-code-forge/.claude
-```
-
-### Option 2: Register as a local marketplace (persistent install)
-
-Register the plugin directory as a marketplace, then install it so it's always available:
-
-```bash
-# Clone the forge (one-time)
-git clone https://github.com/claude-code-forge/claude-code-forge ~/claude-code-forge
-
-# Register the .claude dir as a local marketplace
-claude plugin marketplace add ~/claude-code-forge/.claude
-
-# Install the plugin (available in all future sessions)
-claude plugin install claude-code-forge
-```
-
-> **Note:** `claude install-plugin` is **not** a valid command. Use `claude plugin install` after registering a marketplace, or use `--plugin-dir` for session-only loading.
-
-### Using forge with a brand-new project
-
-Here's the complete workflow to scaffold a new project (e.g., `test_claude_scaffolding`):
-
-```bash
-# 1. Create and initialize your new project
-mkdir test_claude_scaffolding && cd test_claude_scaffolding
+# 2. Create and initialize your new project
+mkdir my-project && cd my-project
 git init
 
-# 2. Start Claude with the forge plugin loaded
-#    (adjust the path to wherever you cloned the forge)
+# 3. Start Claude with the forge plugin loaded (one-time only)
 claude --plugin-dir ~/claude-code-forge/.claude
 
-# 3. Inside the Claude session, scaffold the project structure
-> /init python-fastapi
+# 4. Inside the Claude session, scaffold everything
+> /claude-code-forge:init python-fastapi
 
-# 4. Start building
+# 5. Exit and restart Claude — no --plugin-dir needed!
+> /exit
+claude
+
+# 6. Start building (commands are now local, no namespace prefix)
 > /build a task management API with user authentication
 ```
 
-If you installed via marketplace (Option 2), skip the `--plugin-dir` flag — just run `claude` and the plugin is already loaded.
+> **Note:** The plugin directory is `.claude/` inside the forge repo — not the repo root. Always point `--plugin-dir` to `~/claude-code-forge/.claude`.
 
-### Validating the plugin
+### What `/init` copies
 
-You can verify the plugin structure is correct:
+| Destination | Contents |
+|-------------|----------|
+| `.claude/agents/` | 20 specialized agents (spec-writer, implementer, reviewer, etc.) |
+| `.claude/commands/` | 23 slash commands (/build, /review, /debug, etc.) |
+| `.claude/skills/` | 23 skills (TDD, validation, architecture, etc.) |
+| `.claude/hooks/` | 11 hook scripts (auto-lint, commit alignment, etc.) |
+| `.claude/linters/` | Layer dependency + file size linters |
+| `.claude/scripts/` | Scaffold and utility scripts |
+| `.claude/templates/` | Spec and story templates |
+| `.claude/settings.json` | Default permissions and env vars |
+| `CLAUDE.md` | Project instructions with architecture + routing rules |
+| `README.md` | Project readme with setup and command reference |
+
+### Validating the plugin source
+
+Before first use, you can verify the forge plugin structure:
 
 ```bash
 claude plugin validate ~/claude-code-forge/.claude
@@ -1165,15 +1161,13 @@ The `term-missing` report shows exactly which lines are uncovered. Add tests for
 
 ### `/init` doesn't create any files in a new project
 
-The scaffold script lives inside the **plugin** directory (`.claude/scripts/scaffold_project.py`), not your project. When using `--plugin-dir`, Claude Code sets `CLAUDE_PLUGIN_ROOT` for hooks and MCP servers, but the `/init` command instructs Claude (the agent) to locate the script.
-
-If `/init` fails silently, tell Claude the absolute path to your forge clone:
+If `/init` fails silently, tell Claude the absolute path to your forge clone so it can find the scaffold script:
 
 ```
-The forge is at ~/claude-code-forge. Run: python3 ~/claude-code-forge/.claude/scripts/scaffold_project.py python-fastapi
+Run: python3 ~/claude-code-forge/.claude/scripts/scaffold_project.py python-fastapi
 ```
 
-After scaffolding, all linters are **copied** into your project's `.claude/linters/`, so subsequent commands (`/review`, `/validate`, etc.) work without the plugin path.
+After scaffolding, the full `.claude/` directory is copied into your project. You can then restart Claude without `--plugin-dir`.
 
 ### Agent teams not activating
 
