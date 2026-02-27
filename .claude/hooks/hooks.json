@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/pre_write_check.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre_write_check.py",
             "timeout": 10000
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/pre_read_scaffold_guard.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre_read_scaffold_guard.py",
             "timeout": 5000
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/post_write_lint.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/post_write_lint.py",
             "timeout": 30000
           }
         ]
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/commit_alignment.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/commit_alignment.py",
             "timeout": 10000
           }
         ]
@@ -48,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/subagent_validate.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/subagent_validate.py",
             "timeout": 10000
           }
         ]
@@ -58,7 +58,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/team_activity_log.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/team_activity_log.py",
             "timeout": 10000
           }
         ]
@@ -70,7 +70,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/teammate_idle_check.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/teammate_idle_check.py",
             "timeout": 15000
           }
         ]
@@ -82,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/task_completed_check.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/task_completed_check.py",
             "timeout": 60000
           }
         ]
@@ -94,7 +94,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/scripts/post_commit_spec_check.py",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/post_commit_spec_check.py",
             "timeout": 30000
           }
         ]
