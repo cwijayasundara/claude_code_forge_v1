@@ -1163,6 +1163,18 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 The `term-missing` report shows exactly which lines are uncovered. Add tests for those paths.
 
+### `/init` doesn't create any files in a new project
+
+The scaffold script lives inside the **plugin** directory (`.claude/scripts/scaffold_project.py`), not your project. When using `--plugin-dir`, Claude Code sets `CLAUDE_PLUGIN_ROOT` for hooks and MCP servers, but the `/init` command instructs Claude (the agent) to locate the script.
+
+If `/init` fails silently, tell Claude the absolute path to your forge clone:
+
+```
+The forge is at ~/claude-code-forge. Run: python3 ~/claude-code-forge/.claude/scripts/scaffold_project.py python-fastapi
+```
+
+After scaffolding, all linters are **copied** into your project's `.claude/linters/`, so subsequent commands (`/review`, `/validate`, etc.) work without the plugin path.
+
 ### Agent teams not activating
 
 Verify the env var is set in `.claude/settings.json`:
