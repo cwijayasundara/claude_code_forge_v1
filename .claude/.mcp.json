@@ -3,6 +3,10 @@
     "playwright": {
       "command": "npx",
       "args": ["@anthropic-ai/mcp-server-playwright"]
+    },
+    "stitch": {
+      "command": "npx",
+      "args": ["@_davideast/stitch-mcp", "proxy"]
     }
   }
 }
