@@ -92,29 +92,55 @@ my-project/                        my-project/
 
 ### Step-by-step setup for a new project
 
-```bash
-# 1. Clone the forge (one-time setup)
-git clone https://github.com/cwijayasundara/claude_code_forge_v1 ~/claude-code-forge
+**Step 1 — Clone the forge (one-time, shared across all projects):**
 
-# 2. Create and initialize your new project
+```bash
+git clone https://github.com/cwijayasundara/claude_code_forge_v1 ~/claude-code-forge
+```
+
+**Step 2 — Create and initialize your new project:**
+
+```bash
 mkdir my-project && cd my-project
 git init
+```
 
-# 3. Start Claude with the forge plugin loaded (one-time only)
+**Step 3 — Bootstrap with `--plugin-dir` (one-time only for this project):**
+
+```bash
 claude --plugin-dir ~/claude-code-forge/.claude
+```
 
-# 4. Inside the Claude session, scaffold everything
+This loads the forge as a temporary plugin. Commands appear with a namespace prefix (e.g., `/claude-code-forge:init`). You only need this once — to run `/init`.
+
+> **Note:** The plugin directory is `.claude/` inside the forge repo — not the repo root. Always point `--plugin-dir` to `~/claude-code-forge/.claude`.
+
+**Step 4 — Inside the Claude session, scaffold everything:**
+
+```
 > /claude-code-forge:init python-fastapi
+```
 
-# 5. Exit and restart Claude — no --plugin-dir needed!
+This copies the full forge toolkit into your project's `.claude/` directory, creates the 6-layer `src/` structure, `tests/`, `specs/`, `CLAUDE.md`, `README.md`, and all config files. Hook script paths are automatically rewritten from plugin paths to local relative paths.
+
+**Step 5 — Exit and restart Claude without `--plugin-dir`:**
+
+```
 > /exit
 claude
+```
 
-# 6. Start building (commands are now local, no namespace prefix)
+Since the entire `.claude/` directory now lives inside your project, Claude Code auto-discovers all commands, agents, skills, and hooks locally. No `--plugin-dir` flag needed — ever again for this project.
+
+Commands now appear without the namespace prefix: `/build` instead of `/claude-code-forge:build`.
+
+**Step 6 — Start building:**
+
+```
 > /build a task management API with user authentication
 ```
 
-> **Note:** The plugin directory is `.claude/` inside the forge repo — not the repo root. Always point `--plugin-dir` to `~/claude-code-forge/.claude`.
+**For team members** who clone your project later, they just run `claude` — the `.claude/` directory is already in the repo with everything they need.
 
 ### What `/init` copies
 
