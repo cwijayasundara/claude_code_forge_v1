@@ -61,13 +61,90 @@ When there are 4+ stories with 2+ parallel groups, forge automatically spins up 
 
 ## Installation
 
-```bash
-# Option 1: Install as a plugin
-claude install-plugin ./claude-code-forge
+### Prerequisites
 
-# Option 2: Run directly with the plugin directory
-claude --plugin-dir ./claude-code-forge
+- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
+- Python 3.10+ (for linters and hook scripts)
+- Git (for branch management and PRs)
+- `pytest` (for test execution): `pip install pytest pytest-cov`
+
+### Understanding the plugin structure
+
+The forge plugin lives inside the `.claude/` directory of this repository. When you use `--plugin-dir`, you must point to that `.claude/` subdirectory — not the repo root.
+
 ```
+claude-code-forge/           # ← repo root (NOT the plugin dir)
+└── .claude/                 # ← THIS is the plugin dir
+    ├── .claude-plugin/
+    │   └── plugin.json
+    ├── commands/
+    ├── agents/
+    ├── skills/
+    ├── hooks/
+    └── ...
+```
+
+### Option 1: Session-only (recommended for trying it out)
+
+Load the plugin for a single Claude Code session using `--plugin-dir`:
+
+```bash
+# Clone the forge (one-time)
+git clone https://github.com/claude-code-forge/claude-code-forge ~/claude-code-forge
+
+# Start Claude in any project with the plugin loaded
+claude --plugin-dir ~/claude-code-forge/.claude
+```
+
+### Option 2: Register as a local marketplace (persistent install)
+
+Register the plugin directory as a marketplace, then install it so it's always available:
+
+```bash
+# Clone the forge (one-time)
+git clone https://github.com/claude-code-forge/claude-code-forge ~/claude-code-forge
+
+# Register the .claude dir as a local marketplace
+claude plugin marketplace add ~/claude-code-forge/.claude
+
+# Install the plugin (available in all future sessions)
+claude plugin install claude-code-forge
+```
+
+> **Note:** `claude install-plugin` is **not** a valid command. Use `claude plugin install` after registering a marketplace, or use `--plugin-dir` for session-only loading.
+
+### Using forge with a brand-new project
+
+Here's the complete workflow to scaffold a new project (e.g., `test_claude_scaffolding`):
+
+```bash
+# 1. Create and initialize your new project
+mkdir test_claude_scaffolding && cd test_claude_scaffolding
+git init
+
+# 2. Start Claude with the forge plugin loaded
+#    (adjust the path to wherever you cloned the forge)
+claude --plugin-dir ~/claude-code-forge/.claude
+
+# 3. Inside the Claude session, scaffold the project structure
+> /init python-fastapi
+
+# 4. Start building
+> /build a task management API with user authentication
+```
+
+If you installed via marketplace (Option 2), skip the `--plugin-dir` flag — just run `claude` and the plugin is already loaded.
+
+### Validating the plugin
+
+You can verify the plugin structure is correct:
+
+```bash
+claude plugin validate ~/claude-code-forge/.claude
+# Expected: ✔ Validation passed
+```
+
+### Available commands
 
 After installation, all forge commands become available in your Claude Code session.
 
@@ -98,13 +175,6 @@ After installation, all forge commands become available in your Claude Code sess
 > | `/create-pr` | Structured PR with story commits |
 > | `/skills` | List all available skills |
 > | `/help` | Show all commands, skills, agents |
-
-### Prerequisites
-
-- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
-- Python 3.10+ (for linters and hook scripts)
-- Git (for branch management and PRs)
-- `pytest` (for test execution): `pip install pytest pytest-cov`
 
 ---
 
