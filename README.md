@@ -140,6 +140,8 @@ Commands now appear without the namespace prefix: `/build` instead of `/claude-c
 > /build a task management API with user authentication
 ```
 
+> **Note:** `/scaffold` creates the project **structure** only — directories, config files, and the forge toolkit. It does NOT generate specs or write application code. To execute the full 11-phase SDLC pipeline (specs, stories, design, test plan, TDD implementation, review), run `/build`. If you want a quick build without spec ceremony, use `/just-do-it`.
+
 **For team members** who clone your project later, they just run `claude` — the `.claude/` directory is already in the repo with everything they need.
 
 ### What `/scaffold` copies
@@ -154,6 +156,7 @@ Commands now appear without the namespace prefix: `/build` instead of `/claude-c
 | `.claude/scripts/` | Scaffold and utility scripts |
 | `.claude/templates/` | Spec and story templates |
 | `.claude/settings.json` | Default permissions and env vars |
+| `.claude/.mcp.json` | MCP servers (Playwright for E2E, Stitch for Google Cloud) |
 | `CLAUDE.md` | Project instructions with architecture + routing rules |
 | `README.md` | Project readme with setup and command reference |
 

@@ -38,11 +38,11 @@ PLUGIN_DIRS_TO_COPY = [
 ]
 PLUGIN_FILES_TO_COPY = [
     "settings.json",
+    ".mcp.json",
 ]
 # These are plugin-only or user-specific — do NOT copy
 PLUGIN_SKIP = [
     ".claude-plugin",
-    ".mcp.json",
     "settings.local.json",
 ]
 
@@ -433,11 +433,20 @@ def main() -> None:
     print(f"  Layers: {', '.join(SRC_LAYERS)}")
     print(f"  Spec dirs: {', '.join(SPEC_DIRS)}")
     print(f"  Forge toolkit: .claude/ (agents, commands, skills, hooks)")
+    print(f"  MCP servers: .claude/.mcp.json (Playwright, Stitch)")
     print()
     print("Next steps:")
     print(f"  cd {project_root}")
     print("  claude              # No --plugin-dir needed!")
     print("  > /build <describe your app>")
+    print()
+    print("IMPORTANT: Scaffolding creates the project STRUCTURE only")
+    print("(directories, config files, forge toolkit). It does NOT")
+    print("generate specs or write application code.")
+    print()
+    print("  /build        Run the full 11-phase SDLC pipeline")
+    print("                (specs, stories, design, tests, implementation)")
+    print("  /just-do-it   Quick build with TDD but NO spec ceremony")
     print("=" * 60)
 
 
