@@ -8,6 +8,7 @@ A Claude Code plugin that turns natural language into production-ready code thro
 
 ## Table of Contents
 
+- [Plugin Architecture](#plugin-architecture)
 - [What It Does](#what-it-does)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -36,6 +37,72 @@ A Claude Code plugin that turns natural language into production-ready code thro
 - [Extending Forge](#extending-forge)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
+
+---
+
+## Plugin Architecture
+
+How all plugin components connect to Claude Code at a glance:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            CLAUDE CODE (CLI)                           │
+│                                                                        │
+│   Loads at startup     ┌──────────────────────────────┐                │
+│   ──────────────────►  │         CLAUDE.md            │                │
+│                        │   (Project Constitution)     │                │
+│                        │                              │                │
+│                        │  • Request routing rules     │                │
+│                        │  • 6-layer architecture      │                │
+│                        │  • TDD enforcement           │                │
+│                        │  • Quality gates              │                │
+│                        └──────────────┬───────────────┘                │
+│                                       │                                │
+│                              Routes to .claude/                        │
+│                                       │                                │
+│          ┌────────────────────────────┼────────────────────────────┐   │
+│          │                            │                            │   │
+│          ▼                            ▼                            ▼   │
+│  ┌───────────────┐          ┌─────────────────┐          ┌──────────┐ │
+│  │   Commands    │          │     Skills      │          │  Agents  │ │
+│  │   (23)        │          │     (24)        │          │  (20)    │ │
+│  │               │          │                 │          │          │ │
+│  │ User-facing   │ invoke   │  Composable     │ loaded   │Specialized│ │
+│  │ /forge:* ─────┼────────► │  workflow steps │◄────────┤ actors   │ │
+│  │ entry points  │          │                 │  by      │ per phase│ │
+│  └───────────────┘          └─────────────────┘          └──────────┘ │
+│          │                          │                         │        │
+│          │                          │                         │        │
+│          ▼                          ▼                         ▼        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │                    Runtime Enforcement                          │  │
+│  │                                                                 │  │
+│  │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │  │
+│  │  │  Hooks   │    │ Linters  │    │ Scripts  │    │  Evals   │  │  │
+│  │  │  (11)    │    │  (3)     │    │  (3)     │    │  (6+)    │  │  │
+│  │  │          │    │          │    │          │    │          │  │  │
+│  │  │Pre/Post  │    │Layer deps│    │Scaffold  │    │Good/bad  │  │  │
+│  │  │tool-use  │    │File size │    │Validate  │    │code for  │  │  │
+│  │  │guards    │    │checks    │    │Migrate   │    │reviewer  │  │  │
+│  │  └──────────┘    └──────────┘    └──────────┘    │calibration│ │  │
+│  │                                                   └──────────┘  │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │                    Supporting Infrastructure                    │  │
+│  │                                                                 │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │  │
+│  │  │Settings  │  │   MCP    │  │Templates │  │    Docs      │   │  │
+│  │  │(.json)   │  │ Servers  │  │(.md+code)│  │(architecture │   │  │
+│  │  │          │  │          │  │          │  │ conventions  │   │  │
+│  │  │Permissions│ │Playwright│  │Spec &    │  │ testing      │   │  │
+│  │  │Env vars  │  │Stitch    │  │project   │  │ pipeline)    │   │  │
+│  │  └──────────┘  └──────────┘  │scaffolds │  └──────────────┘   │  │
+│  │                               └──────────┘                     │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
