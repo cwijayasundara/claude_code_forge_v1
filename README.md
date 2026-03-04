@@ -104,6 +104,23 @@ How all plugin components connect to Claude Code at a glance:
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Component Reference
+
+| Component | Count | What It Is | Role in the System |
+|-----------|-------|------------|-------------------|
+| **CLAUDE.md** | 1 | Project constitution loaded by Claude Code at startup | Defines request routing rules, the 6-layer architecture, TDD enforcement, and quality gates. Every agent and command obeys it. |
+| **Agents** | 20 | Specialized AI actors in `.claude/agents/` | Each agent owns one pipeline phase (e.g., spec-writer, implementer, test-writer, code-reviewer, security-reviewer). Agents load skills and follow CLAUDE.md constraints. |
+| **Commands** | 23 | User-facing `/forge:*` slash commands in `.claude/commands/` | Entry points that users invoke directly. Commands orchestrate agents and skills to run pipeline phases, build features, debug issues, or review code. |
+| **Skills** | 24 | Composable workflow steps in `.claude/skills/` | Reusable building blocks (e.g., TDD cycle, validation loop, layer enforcement) that agents and commands load on demand. Skills encode *how* to do things. |
+| **Hooks** | 11 | Pre/post tool-use guard scripts in `.claude/hooks/` | Real-time enforcement that runs automatically on Claude Code tool events (e.g., before a file write or bash command). Hooks block violations before they happen. |
+| **Linters** | 3 | Mechanical code rule checkers in `.claude/linters/` | Static checks for layer dependency violations and file size limits. Run as quality gates during validation. |
+| **Scripts** | 3 | Setup and utility runners in `.claude/scripts/` | One-time or on-demand scripts for scaffolding new projects, validating plugin structure, and migrating between versions. |
+| **Evals** | 6+ | Reviewer calibration samples in `.claude/evals/` | Pairs of good/bad code examples used to calibrate the 8 review agents. Ensures reviewers catch real issues and don't flag false positives. |
+| **Settings** | — | `.claude/settings.json` | Configures permissions, environment variables, and allowed/denied tool patterns for the Claude Code runtime. |
+| **MCP Servers** | 2 | External tool servers (Playwright, Stitch) | Extend Claude Code with additional capabilities like browser automation and Google Cloud integration via the Model Context Protocol. |
+| **Templates** | — | Spec and project scaffolds in `.claude/templates/` | Markdown and code templates that agents use to generate consistent specs, stories, test plans, and project boilerplate. |
+| **Docs** | — | Architecture and convention guides in `.claude/docs/` | Reference documentation on architecture, conventions, testing, and the pipeline that skills and agents consult during execution. |
+
 ---
 
 ## What It Does
