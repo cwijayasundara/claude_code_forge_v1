@@ -3,6 +3,28 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
+    "deny": [
+      "Read(~/.ssh/*)",
+      "Read(~/.gnupg/*)",
+      "Read(~/.aws/*)",
+      "Read(~/.config/*)",
+      "Read(~/.azure/*)",
+      "Read(~/.kube/*)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.production)",
+      "Read(./.env.staging)",
+      "Bash(cat ~/.*)",
+      "Bash(cat /etc/*)",
+      "Bash(cat ~/.ssh/*)",
+      "Bash(cat ~/.aws/*)",
+      "Bash(ssh-add *)",
+      "Bash(gpg --export-secret*)",
+      "Bash(env)",
+      "Bash(printenv)",
+      "Bash(cat .env)",
+      "Bash(cat .env.*)"
+    ],
     "allow": [
       "Bash(python3 *)",
       "Bash(python *)",

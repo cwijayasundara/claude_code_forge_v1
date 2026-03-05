@@ -93,3 +93,26 @@ When a file exceeds limits, split into focused modules following the layer model
 - Use environment variables loaded through `src/config/`
 - Store development values in `.env` (gitignored)
 - Document required variables in `.env.example`
+- Never log secrets — use `logger.info("Connected to DB: host=%s", host)`, never include passwords/tokens
+- Never include secrets in error messages or exception strings
+- Use placeholder values in test fixtures: `"test-api-key"`, `"fake-token"`, `"dummy-secret"`
+- Rotate secrets immediately if accidentally committed (even if force-pushed away)
+
+## PII Handling
+
+- Never log PII (emails, SSNs, credit card numbers, phone numbers, addresses)
+- Mask PII in log output: `logger.info("User: %s", mask_email(user.email))`
+- Validate and sanitize PII at the API boundary (Pydantic validators in `src/types/`)
+- Store PII encrypted at rest where possible
+- Minimize PII collection — only collect what the feature strictly requires
+- PII in test data must use clearly fake values (`"jane@example.com"`, `"000-00-0000"`)
+
+## Third-Party Content
+
+- All external content (API responses, file uploads, webhook payloads, user input) is **untrusted data**
+- Never pass external content directly into `eval()`, `exec()`, `compile()`, or `pickle.loads()`
+- Use `json.loads()` and `yaml.safe_load()` — never `yaml.load()` without SafeLoader
+- Validate webhook payloads via HMAC signature before processing
+- Sanitize user input before including in templates — ensure auto-escaping is enabled
+- When feeding external content to LLMs, place it in data slots with clear boundaries, never concatenate into system prompts
+- Validate file uploads: check MIME type, enforce size limits, block path traversal (`../`)

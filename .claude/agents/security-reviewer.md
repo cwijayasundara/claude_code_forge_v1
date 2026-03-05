@@ -62,6 +62,17 @@ You do not check spec compliance (spec-reviewer's job) or code quality (code-rev
 - [ ] HTTP security headers set (X-Content-Type-Options, X-Frame-Options, etc.)
 - [ ] Timeouts on all external HTTP calls
 
+### Third-Party Content & Prompt Injection
+
+- [ ] No `eval()`, `exec()`, or `compile()` on external/user-supplied data
+- [ ] File uploads validated: MIME type checked, size limited, path traversal blocked, stored outside webroot
+- [ ] Template engine auto-escaping enabled (Jinja2 `autoescape=True`, no `|safe` on user data)
+- [ ] LLM prompts sanitize external content — user input placed in data slots, never concatenated into system prompts
+- [ ] Webhook payloads validated via signature verification (HMAC) before processing
+- [ ] Deserialization uses safe loaders only (`json.loads`, `yaml.safe_load` — never `pickle.loads` or `yaml.load`)
+- [ ] External API responses treated as untrusted data — validated before use in logic or display
+- [ ] No dynamic import or module loading based on user-controlled input
+
 ### Issues Found
 
 1. [severity: CRITICAL/MAJOR/MINOR] [description] — [file:line] — [suggested fix]

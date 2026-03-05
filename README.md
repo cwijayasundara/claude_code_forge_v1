@@ -2,7 +2,7 @@
 
 A Claude Code plugin that turns natural language into production-ready code through an 11-phase SDLC pipeline. Agents write all code. Specs are the source of truth. Humans approve at two checkpoints.
 
-**20 specialized agents | 23 slash commands | 23 skills | 11 hook scripts**
+**20 specialized agents | 23 slash commands | 23 skills | 14 hook scripts | 4 security guardrails**
 
 ---
 
@@ -23,6 +23,7 @@ A Claude Code plugin that turns natural language into production-ready code thro
   - [Agents](#agents)
   - [Skills](#skills)
   - [Hook System](#hook-system)
+  - [Security Guardrails](#security-guardrails)
 - [Commands Reference](#commands-reference)
 - [Workflows](#workflows)
   - [Build a New App from Scratch](#build-a-new-app-from-scratch)
@@ -749,8 +750,11 @@ Hooks run automatically at specific lifecycle events. They enforce quality gates
 
 | Event | Matcher | Script | What It Does |
 |-------|---------|--------|--------------|
+| `PreToolUse` | Read/Write/Edit/Bash | `directory_scope_guard.py` | **Hard-blocks** file access outside project root |
+| `PreToolUse` | Bash | `environment_protection_guard.py` | **Hard-blocks** production/staging deploys |
 | `PreToolUse` | Write/Edit | `pre_write_check.py` | Validates file path and layer rules before writing |
 | `PreToolUse` | Read | `pre_read_scaffold_guard.py` | Guards against reading scaffold internals |
+| `PostToolUse` | Bash/Write/Edit | `secrets_output_guard.py` | **Hard-blocks** secrets and PII in output |
 | `PostToolUse` | Write/Edit | `post_write_lint.py` | Runs linters after every file write |
 | `PostToolUse` | Bash | `commit_alignment.py` | Checks commit messages reference spec/story IDs |
 | `PostToolUse` | Task | `subagent_validate.py` | Validates subagent outputs |
@@ -760,6 +764,74 @@ Hooks run automatically at specific lifecycle events. They enforce quality gates
 | `Stop` | (all) | `post_commit_spec_check.py` | Checks spec consistency at session end |
 | (startup) | - | `session_start.py` | Initializes session context |
 | (compact) | - | `pre_compact_save.py` | Saves context before conversation compaction |
+
+### Security Guardrails
+
+Every scaffolded project inherits four mandatory security policies, enforced by hooks that **hard-block** (exit 2) — the agent cannot bypass them. Only a human can override via Claude Code's hook approval prompt.
+
+#### 1. Directory Scope Lock (`directory_scope_guard.py`)
+
+All file access is locked to the project directory. The hook resolves every path via `Path.resolve()` to defeat `../` traversal attacks.
+
+**Blocked locations:**
+- Home directory and subdirectories (`~/`)
+- System directories (`/etc/`, `/var/`)
+- Credential stores (`~/.ssh/`, `~/.aws/`, `~/.gnupg/`, `~/.azure/`, `~/.kube/`, `~/.config/`)
+- Environment files (`.env`, `.env.local`, `.env.production`, `.env.staging`) — `.env.example` is allowed
+- Bash commands that reference any of the above paths
+
+#### 2. Secrets & PII Prevention (`secrets_output_guard.py`)
+
+Scans all tool output (Bash results, file writes, edits) for credentials and personally identifiable information. Any match triggers an immediate hard-block.
+
+**Detected patterns:**
+| Category | Examples |
+|----------|----------|
+| Cloud keys | AWS access keys (`AKIA...`), Anthropic keys (`sk-ant-...`) |
+| Platform tokens | GitHub PATs (`ghp_...`), Slack tokens (`xox[bpors]-...`) |
+| API secrets | OpenAI keys (`sk-...`), Bearer tokens, private key headers |
+| Credential assignments | `api_key = "..."`, `password = "..."`, `secret_key = "..."` |
+| PII | Social Security Numbers (`XXX-XX-XXXX`), credit card numbers |
+
+**False-positive exclusions** (will not trigger a block):
+- Writes to `.env.example` (placeholder values are expected)
+- Test files with dummy prefixes (`test-`, `fake-`, `dummy-`, `example-`)
+- Lines that are regex pattern definitions themselves (e.g., in the guard scripts)
+
+#### 3. Environment Protection (`environment_protection_guard.py`)
+
+Tiered approval for deployment commands:
+
+| Tier | Action | Examples |
+|------|--------|----------|
+| **Production** | Hard-block (exit 2) | `docker push *prod*`, `kubectl apply *prod*`, `terraform destroy`, `git push main/master`, `git push --force`, destructive SQL (`DROP`, `TRUNCATE`) |
+| **Staging** | Hard-block (exit 2) | Same patterns with `stag/staging` |
+| **Dev** | Advisory (exit 0, warning printed) | Same patterns with `dev/development` |
+
+Production and staging blocks require human approval through Claude Code's hook override prompt. There is no agent-level bypass.
+
+#### 4. Third-Party Content Isolation
+
+Enforced via the security-reviewer agent checklist and coding conventions (not a hook — a review-time policy):
+
+- All external content (API responses, file uploads, webhook payloads, user input) is untrusted **data**, never instructions
+- No `eval()`, `exec()`, or `pickle.loads()` on external data
+- LLM prompts must sanitize external content into data slots, never concatenate into system prompts
+- Webhook payloads validated via HMAC signature before processing
+- Template engines must have auto-escaping enabled
+
+#### Permissions Deny List (`settings.json`)
+
+In addition to hooks, `settings.json` includes a `deny` list that blocks dangerous operations at the Claude Code permissions layer (evaluated before `allow`):
+
+```
+Read(~/.ssh/*), Read(~/.aws/*), Read(~/.gnupg/*), Read(~/.azure/*), Read(~/.kube/*), Read(~/.config/*)
+Read(./.env), Read(./.env.local), Read(./.env.production), Read(./.env.staging)
+Bash(cat ~/.*), Bash(cat /etc/*), Bash(ssh-add *), Bash(gpg --export-secret*)
+Bash(env), Bash(printenv), Bash(cat .env), Bash(cat .env.*)
+```
+
+This provides defense-in-depth: even if a hook fails to load, the permissions layer will still block these operations.
 
 ---
 
@@ -1087,6 +1159,12 @@ Controls permissions and environment variables:
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
+    "deny": [
+      "Read(~/.ssh/*)", "Read(~/.aws/*)", "Read(~/.gnupg/*)", "Read(~/.config/*)",
+      "Read(./.env)", "Read(./.env.local)", "Read(./.env.production)",
+      "Bash(cat ~/.*)", "Bash(cat /etc/*)", "Bash(ssh-add *)",
+      "Bash(env)", "Bash(printenv)", "Bash(cat .env)", ...
+    ],
     "allow": [
       "Bash(python3 *)", "Bash(pytest *)", "Bash(git *)",
       "Bash(gh *)", "Bash(docker *)", "Bash(make *)", ...
@@ -1095,8 +1173,9 @@ Controls permissions and environment variables:
 }
 ```
 
+- `permissions.deny` is evaluated **before** `allow` — blocks access to credential stores, `.env` files, and environment-dumping commands (see [Security Guardrails](#security-guardrails))
+- `permissions.allow` controls which bash commands agents can run without prompting
 - `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` enables agent teams (experimental feature)
-- The `permissions.allow` list controls which bash commands agents can run without prompting
 - Teammates inherit these permissions at spawn time
 
 **User-level settings** (in `~/.claude/settings.json`, not the project):
