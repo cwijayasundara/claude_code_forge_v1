@@ -788,6 +788,7 @@ Scans all tool output (Bash results, file writes, edits) for credentials and per
 | Category | Examples |
 |----------|----------|
 | Cloud keys | AWS access keys (`AKIA...`), Anthropic keys (`sk-ant-...`) |
+| Azure keys | Storage account keys (base64), connection strings (`AccountKey=...`), SAS tokens (`sig=...`), Service Bus/Event Hub shared access keys |
 | Platform tokens | GitHub PATs (`ghp_...`), Slack tokens (`xox[bpors]-...`) |
 | API secrets | OpenAI keys (`sk-...`), Bearer tokens, private key headers |
 | Credential assignments | `api_key = "..."`, `password = "..."`, `secret_key = "..."` |
