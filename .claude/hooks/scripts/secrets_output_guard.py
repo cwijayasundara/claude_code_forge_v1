@@ -36,6 +36,30 @@ SECRET_PATTERNS = [
     (re.compile(r"xox[bpors]-[A-Za-z0-9\-]{10,}"), "Slack Token"),
     # Anthropic keys
     (re.compile(r"sk-ant-[A-Za-z0-9\-]{20,}"), "Anthropic API Key"),
+    # Azure Storage account keys (base64, 88 chars with == padding)
+    (re.compile(r"[A-Za-z0-9+/]{86}=="), "Azure Storage Account Key"),
+    # Azure connection strings
+    (
+        re.compile(
+            r"DefaultEndpointsProtocol=https?;AccountName=[^;]+;AccountKey=[A-Za-z0-9+/=]+",
+        ),
+        "Azure Storage Connection String",
+    ),
+    # Azure SAS tokens
+    (
+        re.compile(
+            r"[?&]sig=[A-Za-z0-9%+/=]{20,}",
+        ),
+        "Azure SAS Token",
+    ),
+    # Azure SQL / Service Bus / Event Hub connection strings
+    (
+        re.compile(
+            r"(?:Server|Endpoint)=sb?://[^;]+;SharedAccessKey=[A-Za-z0-9+/=]+",
+            re.IGNORECASE,
+        ),
+        "Azure Service Connection String",
+    ),
 ]
 
 # PII patterns
